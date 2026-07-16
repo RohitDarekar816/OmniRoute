@@ -16,9 +16,6 @@ permissions:
   contents: read
   packages: write
 
-env:
-  GHCR_IMAGE: ghcr.io/${{ github.repository_owner }}/omniroute
-
 jobs:
   build-and-push:
     name: Build runner-cli → GHCR
@@ -40,12 +37,15 @@ jobs:
       - name: Resolve image tag
         id: meta
         run: |
+          OWNER="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+          IMAGE="ghcr.io/${OWNER}/omniroute"
           TAG="${{ inputs.tag }}"
           if [ -z "$TAG" ]; then
             TAG="${GITHUB_SHA::7}"
           fi
+          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "Image: ${{ env.GHCR_IMAGE }}:$TAG"
+          echo "Image: $IMAGE:$TAG"
 
       - name: Build and push
         uses: docker/build-push-action@v7
@@ -54,7 +54,7 @@ jobs:
           target: runner-cli
           push: true
           tags: |
-            ${{ env.GHCR_IMAGE }}:prod
-            ${{ env.GHCR_IMAGE }}:prod-${{ steps.meta.outputs.tag }}
+            ${{ steps.meta.outputs.image }}:prod
+            ${{ steps.meta.outputs.image }}:prod-${{ steps.meta.outputs.tag }}
           cache-from: type=gha,scope=docker-prod
           cache-to: type=gha,scope=docker-prod,mode=max
