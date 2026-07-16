@@ -4,14 +4,7 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "Dockerfile"
-      - "package.json"
-      - "package-lock.json"
-      - "open-sse/package.json"
-      - "src/**"
-      - "open-sse/**"
-      - "scripts/build/**"
+      - "release/*"
   workflow_dispatch:
     inputs:
       tag:
